@@ -72,6 +72,87 @@ export class TourController {
     }
   }
 
+  async create(title: string, image: string, price: string|number, start_time: string, end_time: string) {
+    try {
+
+      if(!title) {
+        return {
+          status: false,
+          message: "Tiêu đề là bắt buộc",
+          data: null,
+        };  
+      }
+
+      const sql = `INSERT INTO tours(name, image, price, start_time, end_time) VALUES('${title}', '${image}', '${price}', '${start_time}', '${end_time}')`
+      const [result, fields] = await this._conn.query(sql); 
+      return {
+        status: true,
+        message: "Thêm tour thành công",
+        data: result,
+      };
+    } catch (err) {
+      return { status: false, message: "Lỗi hệ thống", data: null };
+    }
+  }
+
+  async update(tour_id: string, name: string, image: string, price: string|number, start_time: string, end_time: string) {
+    try {
+
+      const sqlSelect = `SELECT * FROM tours WHERE tour_id = ${tour_id}`;
+      const [rows] = await this._conn.query(sqlSelect);
+
+      if(!tour_id || !rows.length) {
+        return {
+          status: false,
+          message: "Không tìm thấy tour",
+          data: null,
+        };  
+      }
+
+      name = name ? name : rows[0].name;
+      image = image ? image : rows[0].image;
+      price = price ? price : rows[0].price;
+      start_time = start_time ? start_time : rows[0].start_time;
+      end_time = end_time ? end_time : rows[0].end_time;
+
+      const sql = `UPDATE tours SET name = '${name}', image = '${image}', price = ${price}, start_time = '${start_time}', end_time = '${end_time}' WHERE tour_id = ${tour_id}`
+      const [result, fields] = await this._conn.query(sql); 
+      return {
+        status: true,
+        message: "Cập nhật tour thành công",
+        data: result,
+      };
+    } catch (err) {
+      return { status: false, message: "Lỗi hệ thống", data: null };
+    }
+  }
+
+  async delete(tour_id: string|null|undefined) {
+    try {
+
+      const sqlSelect = `SELECT * FROM tours WHERE tour_id = ${tour_id}`;
+      const [rows] = await this._conn.query(sqlSelect);
+
+      if(!tour_id || !rows.length) {
+        return {
+          status: false,
+          message: "Không tìm thấy tour",
+          data: null,
+        };  
+      }
+
+      const sql = `DELETE FROM tours WHERE tour_id = ${tour_id}`
+      const [result, fields] = await this._conn.query(sql); 
+      return {
+        status: true,
+        message: "Xóa tour thành công",
+        data: result,
+      };
+    } catch (err) {
+      return { status: false, message: "Lỗi hệ thống", data: null };
+    }
+  }
+
   private _generateDate() {
     const start = Math.floor(Math.random() * 90) + 30;
     const end = start + Math.floor(Math.random() * 30) + 10;

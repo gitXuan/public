@@ -80,10 +80,46 @@ const routes = (conn: any) => {
     });
   });
 
-  // Tour regis create
+  // Tour regis update
+  router.post("/tour-regis/update", async (req, res, next) => {
+      const result = await tourRegisController.update(
+        req.body.tour_regis_id,
+        req.body.customer_id, 
+        req.body.tour_id, 
+        req.body.person, 
+        req.body.price, 
+        req.body.start_date, 
+        req.body.end_date, 
+        req.body.status
+      );
+
+      return res.json({
+        status: result.status,
+        message: result.message,
+        data: result.data,
+      });
+    
+  });
+
+  // Tour regis detail
   router.get("/tour-regis/detail", async (req, res, next) => {
     if (req.query.id) {
       const result = await tourRegisController.detail(req.query.id);
+
+      return res.json({
+        status: result.status,
+        message: result.message,
+        data: result.data,
+      });
+    } else {
+      return res.json({ status: false, message: "id không đúng", data: null });
+    }
+  });
+  
+  // Tour regis delete
+  router.get("/tour-regis/delete", async (req, res, next) => {
+    if (req.query.tour_regis_id) {
+      const result = await tourRegisController.delete(req.query.tour_regis_id as string);
 
       return res.json({
         status: result.status,
@@ -132,6 +168,33 @@ const routes = (conn: any) => {
     }
   });
 
+  router.post("/tour/create", async (req, res, next) => {
+    const result = await tourController.create(req.body.name, req.body.image, req.body.price, req.body.start_time, req.body.end_time);
+    return res.json({
+      status: result.status,
+      message: result.message,
+      data: result.data,
+    });
+  });
+
+  router.post("/tour/update", async (req, res, next) => {
+    const result = await tourController.update(req.body.tour_id, req.body.name, req.body.image, req.body.price, req.body.start_time, req.body.end_time);
+    return res.json({
+      status: result.status,
+      message: result.message,
+      data: result.data,
+    });
+  });
+
+  router.get("/tour/delete", async (req, res, next) => {
+    const result = await tourController.delete(req.query.tour_id as string);
+    return res.json({
+      status: result.status,
+      message: result.message,
+      data: result.data,
+    });
+  });
+
   // Advertise
   router.get("/advertise/generate", async (req, res, next) => {
     await advertiseController.generate();
@@ -167,6 +230,33 @@ const routes = (conn: any) => {
     } else {
       return res.json({ status: false, message: "id không đúng", data: null });
     }
+  });
+
+  router.post("/advertise/create", async (req, res, next) => {
+    const result = await advertiseController.create(req.body.title, req.body.image, req.body.description);
+    return res.json({
+      status: result.status,
+      message: result.message,
+      data: result.data,
+    });
+  });
+
+  router.post("/advertise/update", async (req, res, next) => {
+    const result = await advertiseController.update(req.body.advertise_id, req.body.title, req.body.image, req.body.description);
+    return res.json({
+      status: result.status,
+      message: result.message,
+      data: result.data,
+    });
+  });
+
+  router.get("/advertise/delete", async (req, res, next) => {
+    const result = await advertiseController.delete(req.query.advertise_id as string);
+    return res.json({
+      status: result.status,
+      message: result.message,
+      data: result.data,
+    });
   });
 
   return router;

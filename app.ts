@@ -15,9 +15,10 @@ class APP {
   }
 
   private async _init() {
-    this._app.use(bodyParser.json());
-    this._app.use(express.json());
-    this._app.use(express.urlencoded({ extended: true }));
+    this._app.use(express.json({limit: '50mb'}));
+    this._app.use(express.urlencoded({limit: '50mb'}));
+    this._app.use(bodyParser.json({limit: '50mb'}));
+    this._app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
     // create routes
     await this._connectDB();

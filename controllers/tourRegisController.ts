@@ -78,6 +78,63 @@ export class TourRegisController {
     }
   }
 
+  async update(
+    tour_regis_id: string|number,
+    customer_id: number,
+    tour_id: number,
+    person: number,
+    price: number,
+    start_date: string,
+    end_date: string,
+    status: string|number|boolean
+  ) {
+    try {
+
+      // Check exists
+      const sqlSelect = `SELECT * FROM tour_regis_informations WHERE tour_regis_id = ${tour_regis_id}`;
+      const [rows] = await this._conn.query(sqlSelect);
+
+      if(!tour_id || !rows.length) {
+        return {
+          status: false,
+          message: "Không tìm thấy thông tin",
+          data: null,
+        };  
+      }
+
+      // Check valid
+      const isValidParam = this._checkParams(customer_id, tour_id);
+      if (!isValidParam.status)
+        return { status: false, message: isValidParam.message, data: null };
+
+      customer_id = customer_id ? customer_id : rows[0].customer_id
+      tour_id = tour_id ? tour_id : rows[0].tour_id
+      person = person ? person : rows[0].person
+      price = price ? price : rows[0].price
+      start_date = start_date ? start_date : rows[0].start_date
+      end_date = end_date ? end_date : rows[0].end_date
+      status = status ? status : rows[0].status
+
+      // Update
+      const sql = `UPDATE tour_regis_informations SET 
+                    customer_id = ${customer_id}, 
+                    tour_id = ${tour_id}, 
+                    person = ${person}, 
+                    price = ${price}, 
+                    start_date = ${start_date},
+                    end_date = ${end_date},
+                    status = ${status}
+                    WHERE tour_regis_id = ${tour_regis_id}`;
+
+      await this._conn.execute(sql);
+
+      return { status: true, message: "Cập nhật thành công", data: null };
+    } catch (err) {
+      return { status: false, message: "Lỗi hệ thống", data: null };
+    }
+  }
+
+
   async detail(id: any) {
     try {
       const sql = `SELECT * FROM tour_regis_informations WHERE tour_regis_id = ${id}`;
@@ -99,6 +156,32 @@ export class TourRegisController {
           message: "Không tìm thấy tour đăng ký tương ứng",
           data: [],
         };
+    } catch (err) {
+      return { status: false, message: "Lỗi hệ thống", data: null };
+    }
+  }
+
+  async delete(tour_regis_id: string|null|undefined) {
+    try {
+
+      const sqlSelect = `SELECT * FROM tour_regis_informations WHERE tour_regis_id = ${tour_regis_id}`;
+      const [rows] = await this._conn.query(sqlSelect);
+
+      if(!tour_regis_id || !rows.length) {
+        return {
+          status: false,
+          message: "Không tìm thấy tour",
+          data: null,
+        };  
+      }
+
+      const sql = `DELETE FROM tour_regis_informations WHERE tour_regis_id = ${tour_regis_id}`
+      const [result, fields] = await this._conn.query(sql); 
+      return {
+        status: true,
+        message: "Xóa tour đăng ký thành công",
+        data: result,
+      };
     } catch (err) {
       return { status: false, message: "Lỗi hệ thống", data: null };
     }

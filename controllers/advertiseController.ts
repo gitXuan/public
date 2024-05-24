@@ -64,4 +64,83 @@ export class AdvertiseController {
       return { status: false, message: "Lỗi hệ thống", data: null };
     }
   }
+
+  async create(title: string, image: string, description: string) {
+    try {
+
+      if(!title) {
+        return {
+          status: false,
+          message: "Tiêu đề là bắt buộc",
+          data: null,
+        };  
+      }
+
+      const sql = `INSERT INTO advertises(title, image, description, created_at) VALUES('${title}', '${image}', '${description}', '${moment().format()}')`
+      const [result, fields] = await this._conn.query(sql); 
+      return {
+        status: true,
+        message: "Thêm bài viết thành công",
+        data: result,
+      };
+    } catch (err) {
+      return { status: false, message: "Lỗi hệ thống", data: null };
+    }
+  }
+
+  async update(advertise_id: string, title: string, image: string, description: string) {
+    try {
+
+      const sqlSelect = `SELECT * FROM advertises WHERE advertise_id = ${advertise_id}`;
+      const [rows] = await this._conn.query(sqlSelect);
+
+      if(!advertise_id || !rows.length) {
+        return {
+          status: false,
+          message: "Không tìm thấy bài viết",
+          data: null,
+        };  
+      }
+
+      title = title ? title : rows[0].title;
+      image = image ? image : rows[0].image;
+      description = description ? description : rows[0].description;
+
+      const sql = `UPDATE advertises SET title = '${title}', image = '${image}', description = '${description}' WHERE advertise_id = ${advertise_id}`
+      const [result, fields] = await this._conn.query(sql); 
+      return {
+        status: true,
+        message: "Cập nhật bài viết thành công",
+        data: result,
+      };
+    } catch (err) {
+      return { status: false, message: "Lỗi hệ thống", data: null };
+    }
+  }
+
+  async delete(advertise_id: string|null|undefined) {
+    try {
+
+      const sqlSelect = `SELECT * FROM advertises WHERE advertise_id = ${advertise_id}`;
+      const [rows] = await this._conn.query(sqlSelect);
+
+      if(!advertise_id || !rows.length) {
+        return {
+          status: false,
+          message: "Không tìm thấy bài viết",
+          data: null,
+        };  
+      }
+
+      const sql = `DELETE FROM advertises WHERE advertise_id = ${advertise_id}`
+      const [result, fields] = await this._conn.query(sql); 
+      return {
+        status: true,
+        message: "Xóa bài viết thành công",
+        data: result,
+      };
+    } catch (err) {
+      return { status: false, message: "Lỗi hệ thống", data: null };
+    }
+  }
 }
